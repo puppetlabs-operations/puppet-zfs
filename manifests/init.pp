@@ -4,7 +4,10 @@ class zfs {
 
   case $::operatingsystem {
     'FreeBSD': {
-      package{ 'sysutils/zfs-stats': ensure => present, }
+      package{ 'sysutils/zfs-stats' :}
+      service{ 'zfs':
+        enable => true,
+      }
     }
     'Solaris': {
       file{
