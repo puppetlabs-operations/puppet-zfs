@@ -18,14 +18,14 @@ class zfs::snapshots {
     'zfs hourly snapshot':
       user        => root,
       minute      => 5,
-      command     => "/usr/local/bin/zfs-snapshot.rb -r -c 25 -s hourly ${hostname} zroot",
+      command     => "/usr/local/bin/zfs-snapshot.rb -r -c 25 -s hourly zroot",
       environment => $env,
       require     => File['/usr/local/bin/zfs-snapshot.rb'];
     'zfs daily snapshot':
       user        => root,
       minute      => 10,
       hour        => 1,
-      command     => "/usr/local/bin/zfs-snapshot.rb -r -c 8 -s daily ${hostname} zroot",
+      command     => "/usr/local/bin/zfs-snapshot.rb -r -c 8 -s daily zroot",
       environment => $env,
       require     => File['/usr/local/bin/zfs-snapshot.rb'];
     'zfs weekly snapshot':
@@ -33,7 +33,7 @@ class zfs::snapshots {
       minute      => 15,
       hour        => 2,
       weekday     => 0,
-      command     => "/usr/local/bin/zfs-snapshot.rb -r -c 5 -s weekly ${hostname} zroot",
+      command     => "/usr/local/bin/zfs-snapshot.rb -r -c 5 -s weekly zroot",
       environment => $env,
       require     => File['/usr/local/bin/zfs-snapshot.rb'];
   }
