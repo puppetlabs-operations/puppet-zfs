@@ -1,0 +1,3 @@
+#!/bin/bash
+
+[ $( zfs get quota $1 | grep -iv value | awk '{ print $3 }' ) = $2 ]
