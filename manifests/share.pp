@@ -83,10 +83,4 @@ define zfs::share (
     path    => $path,
     require => [ Zfs[$vol_name], Class[zfs::vol::get_share] ]
   }
-
-  ::zfs::share { $vol_name:
-    parent  => $zpool,
-    share   => $share,
-    require => Zfs[$vol_name],
-  }
 }
