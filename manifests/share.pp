@@ -50,6 +50,8 @@ define zfs::share (
   }
 
   # Build commands
+  $set_share    = 'zfs set share'
+  $unset_share  = 'zfs set -c share'
   $share_base   = "share=name=${share_name},path=/${vol_name}"
   $share_sec    = "sec=${security}"
   $share_perm   = "${permissions}=@${addresses}"
@@ -85,8 +87,8 @@ define zfs::share (
     $share = $full_share
   }
 
-  $unset_zfs_share = "zfs set -c ${share_base} ${vol_name}"
-  $set_zfs_share   = "zfs set ${share} ${vol_name}"
+  $unset_zfs_share = "${unset_share}=${share_base} ${vol_name}"
+  $set_zfs_share   = "${set_share}=${share} ${vol_name}"
 
   if ! defined(Zfs[$vol_name]) {
     zfs { $vol_name:
