@@ -52,7 +52,7 @@ define zfs::share (
   # Build commands
   $set_share    = 'zfs set share'
   $unset_share  = 'zfs set -c share'
-  $share_base   = "share=name=${share_name},path=/${vol_name}"
+  $share_base   = "name=${share_name},path=/${vol_name}"
   $share_sec    = "sec=${security}"
   $share_perm   = "${permissions}=@${addresses}"
   $base_command = "${share_base},${share_prot}"
