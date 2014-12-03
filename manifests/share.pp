@@ -35,9 +35,22 @@ define zfs::share (
     $addresses = $allow_ip
   }
 
+  if ( is_array($protocol) ) {
+    case $protocol {
+      /(?=(.*nfs))(?=(.*smb))/: {
+        $share_prot = 'prot=nfs,prot=smb'
+      }
+      default: {
+        fail( '$protocol array is invalid' )
+      }
+    }
+  }
+  else {
+    $share_prot = "prot=${protocol}"
+  }
+
   # Build commands
   $share_base   = "share=name=${share_name},path=/${vol_name}"
-  $share_prot   = "prot=${protocol}"
   $share_sec    = "sec=${security}"
   $share_perm   = "${permissions}=@${addresses}"
   $base_command = "${share_base},${share_prot}"
