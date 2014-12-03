@@ -50,11 +50,10 @@ define zfs::share (
   }
 
   # Build commands
-  $share_base   = "name=${share_name},path=/${vol_name}"
-  $share_built  = "share=${share_base}"
+  $share_base   = "share=name=${share_name},path=/${vol_name}"
   $share_sec    = "sec=${security}"
   $share_perm   = "${permissions}=@${addresses}"
-  $base_command = "${share_built},${share_prot}"
+  $base_command = "${share_base},${share_prot}"
 
   if ( is_array($security) ) {
     case $security {
@@ -86,7 +85,7 @@ define zfs::share (
     $share = $full_share
   }
 
-  $unset_zfs_share = "zfs set -c ${share_built} ${vol_name}"
+  $unset_zfs_share = "zfs set -c ${share_base} ${vol_name}"
   $set_zfs_share   = "zfs set ${share} ${vol_name}"
 
   if ! defined(Zfs[$vol_name]) {
@@ -96,7 +95,7 @@ define zfs::share (
   }
 
   Exec {
-    unless => "zfs_get_share ${vol_name} ${share_base}",
+    unless => "zfs_get_share ${vol_name} ${share}",
     path   => $path,
     require => [ Zfs[$vol_name], Class[zfs::vol::get_share] ],
   }
