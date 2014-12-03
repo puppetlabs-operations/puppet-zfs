@@ -1,16 +1,14 @@
 # A class for managing ZFS shares
 define zfs::share (
-# $share,
-# $parent      = undef,
+  $allow_ip,
   $ensure      = present,
-  $allow_ip    = undef,
+  $zpool       = undef,
   $full_share  = undef,
   $share_title = undef,
-  $protocol    = 'nfs',
-  $security    = [ 'sys', 'default', 'none' ],
-  $permissions = 'rw',
-  $zpool       = undef,
   $zvol        = $title,
+  $protocol    = 'nfs',
+  $permissions = 'rw',
+  $security    = [ 'sys', 'default', 'none' ],
   $path        = '/usr/bin:/usr/sbin',
 ) {
 
@@ -38,7 +36,7 @@ define zfs::share (
   }
 
   # Build commands
-  $share_base   = "name=${share_name},path=/${vol_name}"
+  $share_base   = "share=name=${share_name},path=/${vol_name}"
   $share_prot   = "prot=${protocol}"
   $share_sec    = "sec=${security}"
   $share_perm   = "${permissions}=@${addresses}"
@@ -58,6 +56,9 @@ define zfs::share (
       /(?=(.*sys))(?=(.*default))(?=(.*none))/: {
         $share_command = "${base_command},sec=sys,${share_perm},sec=default,${share_perm},sec=none,${share_perm}"
       }
+      default: {
+        fail('Security array is invalid')
+      }
     }
   }
   else {
@@ -71,8 +72,8 @@ define zfs::share (
     $share = $full_share
   }
 
-  $unset_zfs_share = "zfs set -c share=${share_name} ${vol_name}"
-  $set_zfs_share   = "zfs set share=${share} ${vol_name}"
+  $unset_zfs_share = "zfs set -c ${share_base} ${vol_name}"
+  $set_zfs_share   = "zfs set ${share} ${vol_name}"
 
   if ! defined(Zfs[$vol_name]) {
     zfs { $vol_name:
