@@ -2,6 +2,7 @@
 define zfs::share (
 # $share,
 # $parent      = undef,
+  $ensure      = present,
   $allow_ip    = undef,
   $full_share  = undef,
   $share_title = undef,
@@ -70,7 +71,8 @@ define zfs::share (
     $share = $full_share
   }
 
-  $set_zfs_share = "zfs set share=\"${share}\" ${vol_name}"
+  $unset_zfs_share = "zfs set -c share=${share_name} ${vol_name}"
+  $set_zfs_share   = "zfs set share=${share} ${vol_name}"
 
   if ! defined(Zfs[$vol_name]) {
     zfs { $vol_name:
@@ -78,9 +80,22 @@ define zfs::share (
     }
   }
 
-  exec { $set_zfs_share:
-    unless  => "zfs_get_share ${vol_name} ${share}",
-    path    => $path,
-    require => [ Zfs[$vol_name], Class[zfs::vol::get_share] ]
+  Exec {
+    unless => "zfs_get_share ${vol_name} ${share}",
+    path   => $path,
+    require => [ Zfs[$vol_name], Class[zfs::vol::get_share] ],
+  }
+
+  case $ensure {
+    absent: {
+      exec { $unset_zfs_share: }
+    }
+    default: {
+      exec {
+        $unset_zfs_share:;
+        $set_zfs_share:
+          require => Exec[$unset_zfs_share]
+      }
+    }
   }
 }
