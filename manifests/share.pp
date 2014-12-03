@@ -59,6 +59,9 @@ define zfs::share (
 
   if ( is_array($security) ) {
     case $security {
+      /(?=(.*sys))(?=(.*default))(?=(.*none))/: {
+        $share_command = "${base_command},sec=sys,${share_perm},sec=default,${share_perm},sec=none,${share_perm}"
+      }
       /(?=(.*sys))(?=(.*default))/: {
         $share_command = "${base_command},sec=sys,${share_perm},sec=default,${share_perm}"
       }
@@ -67,9 +70,6 @@ define zfs::share (
       }
       /(?=(.*default))(?=(.*none))/: {
         $share_command = "${base_command},sec=default,${share_perm},sec=none,${share_perm}"
-      }
-      /(?=(.*sys))(?=(.*default))(?=(.*none))/: {
-        $share_command = "${base_command},sec=sys,${share_perm},sec=default,${share_perm},sec=none,${share_perm}"
       }
       default: {
         fail('Security array is invalid')
