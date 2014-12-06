@@ -38,7 +38,7 @@ define zfs::share (
           $addresses = '*'
         }
         default: {
-          $addresses = "@${allow_ip"
+          $addresses = "@${allow_ip}"
           }
         }
       }
