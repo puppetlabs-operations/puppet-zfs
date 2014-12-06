@@ -38,7 +38,8 @@ define zfs::share (
   if ( is_array($protocol) ) {
     case $protocol {
       /(?=(.*nfs))(?=(.*smb))/: {
-        $share_prot = 'prot=nfs,prot=smb'
+        $share_prot = 'prot=nfs'
+        $share_prot_smb = ',prot=smb,guestok=true'
       }
       default: {
         fail( '$protocol array is invalid' )
@@ -56,20 +57,23 @@ define zfs::share (
   $share_sec    = "sec=${security}"
   $share_perm   = "${permissions}=@${addresses}"
   $base_command = "${share_base},${share_prot}"
+  $sec_sys      = "sec=sys,${share_perm}"
+  $sec_default  = "sec=default,${share_perm}"
+  $sec_none     = "sec=none,${share_perm}"
 
   if ( is_array($security) ) {
     case $security {
       /(?=(.*sys))(?=(.*default))(?=(.*none))/: {
-        $share_command = "${base_command},sec=sys,${share_perm},sec=default,${share_perm},sec=none,${share_perm}"
+        $share_command = "${base_command},${sec_sys},${sec_default},${sec_none}"
       }
       /(?=(.*sys))(?=(.*default))/: {
-        $share_command = "${base_command},sec=sys,${share_perm},sec=default,${share_perm}"
+        $share_command = "${base_command},${sec_sys},${sec_default}"
       }
       /(?=(.*sys))(?=(.*none))/: {
-        $share_command = "${base_command},sec=sys,${share_perm},sec=none,${share_perm}"
+        $share_command = "${base_command},${sec_sys},${sec_none}"
       }
       /(?=(.*default))(?=(.*none))/: {
-        $share_command = "${base_command},sec=default,${share_perm},sec=none,${share_perm}"
+        $share_command = "${base_command},${sec_default},${sec_none}"
       }
       default: {
         fail('Security array is invalid')
@@ -77,7 +81,7 @@ define zfs::share (
     }
   }
   else {
-    $share_command = "${base_command},${share_sec},${share_perm}"
+    $share_command = "${base_command},${share_sec},${share_perm}${share_prot_smb}"
   }
 
   if ( $full_share == undef ) {
