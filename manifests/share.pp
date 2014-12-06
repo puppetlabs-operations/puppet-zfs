@@ -16,24 +16,32 @@ define zfs::share (
 
   if $zpool {
     $vol_name = "${zpool}/${zvol}"
-  }
-  else {
+  } else {
     $vol_name = $zvol
   }
 
   if $share_title {
     $share_name = $share_title
-  }
-  else {
-    $share_name = "${zpool}_${zvol}"
+  } else {
+    if ( $zpool == undef ) {
+      $share_name = $title
+    } else {
+      $share_name = "${zpool}_${zvol}"
+    }
   }
 
   if ( is_array($allow_ip) ) {
-    $addresses = inline_template("<%= allow_ip.join(':@') %>")
-  }
-  else {
-    $addresses = $allow_ip
-  }
+    $addresses = inline_template("@<%= allow_ip.join(':@') %>")
+  } else {
+      case $allow_ip {
+        /(^\*$)/: {
+          $addresses = '*'
+        }
+        default: {
+          $addresses = "@${allow_ip"
+          }
+        }
+      }
 
   if ( is_array($protocol) ) {
     case $protocol {
@@ -45,8 +53,7 @@ define zfs::share (
         fail( '$protocol array is invalid' )
       }
     }
-  }
-  else {
+  } else {
     $share_prot = "prot=${protocol}"
   }
 
@@ -55,7 +62,7 @@ define zfs::share (
   $unset_share  = 'zfs set -c share'
   $share_base   = "name=${share_name},path=/${vol_name}"
   $share_sec    = "sec=${security}"
-  $share_perm   = "${permissions}=@${addresses}"
+  $share_perm   = "${permissions}=${addresses}"
   $base_command = "${share_base},${share_prot}"
   $sec_sys      = "sec=sys,${share_perm}"
   $sec_default  = "sec=default,${share_perm}"
@@ -79,8 +86,7 @@ define zfs::share (
         fail('Security array is invalid')
       }
     }
-  }
-  else {
+  } else {
     $share_command = "${base_command},${share_sec},${share_perm}${share_prot_smb}"
   }
 
