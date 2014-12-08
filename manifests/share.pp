@@ -25,11 +25,12 @@ define zfs::share (
     $share_name = $share_title
   }
   else {
-    if ( $zpool == undef ) {
-      $share_name = $title
-    }
-    else {
-      $share_name = "${zpool}_${zvol}"
+    case $zpool {
+      undef: {
+        $share_name = $title
+      }
+      default: {
+        $share_name = "${zpool}_${zvol}"
     }
   }
 
