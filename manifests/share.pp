@@ -29,15 +29,11 @@ define zfs::share (
       undef: {
         $share_name = $title
       }
+      /\//: {
+        $share_name = inline_template("<%= @share_name.split('/').join('_') %>")
+      }
       default: {
-        case $share_name {
-          /(.*\/.*)/: {
-            $share_name = inline_template("<%= @share_name.split('/').join('_') %>")
-          }
-          default: {
-            $share_name = "${zpool}_${zvol}"
-          }
-        }
+        $share_name = "${zpool}_${zvol}"
       }
     }
   }
