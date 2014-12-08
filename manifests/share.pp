@@ -30,7 +30,14 @@ define zfs::share (
         $share_name = $title
       }
       default: {
-        $share_name = "${zpool}_${zvol}"
+        case $share_name {
+          /\//: {
+            $share_name = inline_template("<%= @share_name.split('/').join('_') %>")
+          }
+          default: {
+            $share_name = "${zpool}_${zvol}"
+          }
+        }
       }
     }
   }
