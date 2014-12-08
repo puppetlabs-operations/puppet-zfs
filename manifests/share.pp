@@ -31,7 +31,7 @@ define zfs::share (
       }
       default: {
         case $share_name {
-          /\//: {
+          /(.*\/.*)/: {
             $share_name = inline_template("<%= @share_name.split('/').join('_') %>")
           }
           default: {
