@@ -16,23 +16,27 @@ define zfs::share (
 
   if $zpool {
     $vol_name = "${zpool}/${zvol}"
-  } else {
+  }
+  else {
     $vol_name = $zvol
   }
 
   if $share_title {
     $share_name = $share_title
-  } else {
+  }
+  else {
     if ( $zpool == undef ) {
       $share_name = $title
-    } else {
+    }
+    else {
       $share_name = "${zpool}_${zvol}"
     }
   }
 
   if ( is_array($allow_ip) ) {
     $addresses = inline_template("@<%= allow_ip.join(':@') %>")
-  } else {
+  }
+  else {
       case $allow_ip {
         /(^\*$)/: {
           $addresses = '*'
@@ -53,7 +57,8 @@ define zfs::share (
         fail( '$protocol array is invalid' )
       }
     }
-  } else {
+  }
+  else {
     $share_prot = "prot=${protocol}"
   }
 
@@ -86,7 +91,8 @@ define zfs::share (
         fail('Security array is invalid')
       }
     }
-  } else {
+  }
+  else {
     $share_command = "${base_command},${share_sec},${share_perm}${share_prot_smb}"
   }
 
