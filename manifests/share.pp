@@ -30,7 +30,7 @@ define zfs::share (
         $share_name = $title
       }
       /\//: {
-        $zpool_split = inline_template("<%= @zpool.split('/').join('_') %>")
+        $zpool_split = inline_template("<%= @zpool.split('/').first %>")
         $share_name  = "${zpool_split}_${title}"
       }
       default: {
