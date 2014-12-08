@@ -31,6 +31,7 @@ define zfs::share (
       }
       default: {
         $share_name = "${zpool}_${zvol}"
+      }
     }
   }
 
