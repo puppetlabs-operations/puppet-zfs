@@ -14,6 +14,10 @@ define zfs::share (
 
   include zfs::vol::get_share
 
+  if ( is_array($permissions) ) {
+    fail( 'An array of permissions is not supported' )
+  }
+
   if $zpool {
     $vol_name = "${zpool}/${zvol}"
   }
@@ -56,8 +60,8 @@ define zfs::share (
   if ( is_array($protocol) ) {
     case $protocol {
       /(?=(.*nfs))(?=(.*smb))/: {
-        $share_prot = 'prot=nfs'
-        $share_prot_smb = ',prot=smb,guestok=true'
+        $share_prot     = 'prot=nfs'
+        $share_prot_smb = ",prot=smb,guestok=true,${permissions}=*"
       }
       default: {
         fail( '$protocol array is invalid' )
