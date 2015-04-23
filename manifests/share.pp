@@ -31,11 +31,11 @@ define zfs::share (
   else {
     case $zpool {
       undef: {
-        $share_name = $title
+        $share_name = regsubst($vol_name, '/', '_')
       }
       /\//: {
         $zpool_split = inline_template("<%= @zpool.split('/').join('_') %>")
-        $share_name  = "${zpool_split}_${title}"
+        $share_name  = $zpool_split
       }
       default: {
         $share_name = "${zpool}_${zvol}"
