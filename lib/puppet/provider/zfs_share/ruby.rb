@@ -4,9 +4,9 @@ Puppet::Type.type(:zfs_share).provide(:ruby) do
   desc "ZFS share support for Solaris 11"
 
   commands :zfscmd => "zfs"
-  share_title = resource[:name].gsub('/', '_')
-  share_path = resource[:name].insert 0, "/"
-  allow_ip = resource[:allow_ip]
+  share_title = @resource[:name].gsub('/', '_')
+  share_path = @resource[:name].insert 0, "/"
+  allow_ip = @resource[:allow_ip]
   allow_ips = @allow_ip.insert 0, "@"
   # REPLACE ME
   security = 'none'
