@@ -5,6 +5,7 @@ Puppet::Type.newtype(:zfs_share) do
 
   newparam(:zfs_name) do
     desc "Name of zfs file system"
+    isnamevar
 
     validate do |value|
       unless value =~ /(?!\/|\d)^\w.*/
