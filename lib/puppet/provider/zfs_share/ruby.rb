@@ -5,7 +5,7 @@ Puppet::Type.type(:zfs_share).provide(:ruby) do
 
   commands :zfscmd => "zfs"
   share_title = @resource[:name].gsub('/', '_')
-  share_path = @resource[:name].(insert 0, "/")
+  share_path = @resource[:name].insert(0, "/")
   allow_ip = @resource[:allow_ip].insert(0, '@')
   # REPLACE ME
   security = 'none'
