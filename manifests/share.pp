@@ -1,16 +1,51 @@
 # A class for managing ZFS shares
 define zfs::share (
-  $allow_ip,
-  $ensure      = present,
-  $zpool       = undef,
-  $full_share  = undef,
-  $share_title = undef,
-  $zvol        = $title,
-  $protocol    = 'nfs',
-  $permissions = 'rw',
-  $security    = [ 'sys', 'default', 'none' ],
-  $path        = '/usr/bin:/usr/sbin',
+  $ensure         = present,
+  $allow_ip_read  = undef,
+  $allow_ip_write = undef,
+  $security_read  = undef,
+  $security_write = undef,
+  $zpool          = undef,
+  $full_share     = undef,
+  $share_title    = undef,
+  $zvol           = $title,
+  $protocol       = 'nfs',
+  $permissions    = 'rw',
+  $security       = [ 'sys', 'default', 'none' ],
+  $path           = '/usr/bin:/usr/sbin',
 ) {
+
+  if $allow_ip_read {
+    if is_array($allow_ip_read) {
+      $allow_ip_read_join = join($allow_ip_read, ':@')
+      $allow_ips_read = "@${allow_ip_read_join}"
+    }
+    else {
+      $allow_ips_read = "@${allow_ip_read}"
+    }
+  }
+
+  if $allow_ip_write {
+    if is_array($allow_ip_write) {
+      $allow_ip_write_join = join($allow_ip_write, ':@')
+      $allow_ips_write = "@${allow_ip_write_join}"
+    }
+    else {
+      $allow_ips_write = "@${allow_ip_write}"
+    }
+  }
+
+  if $security_read {
+    if $allow_ip_read {
+      if is_array($security_read) {
+        each($security_read) |$s| {
+          if $s =~ /^(sys|default|none)$/ {
+            exec { "zfs set share ${s}":
+              
+
+
+  zfs set share.nfs.sec.none.ro="@10.32.22.32/32" target
+  zfs set share.nfs.sec.none.ro="@10.32.22.32/32" target
 
   include zfs::vol::get_share
 
@@ -44,7 +79,7 @@ define zfs::share (
   }
 
   if ( is_array($allow_ip) ) {
-    $addresses = inline_template("@<%= allow_ip.join(':@') %>")
+    $addresses = join($allow_ip, ':@')
   }
   else {
       case $allow_ip {
