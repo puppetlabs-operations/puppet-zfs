@@ -1,7 +1,10 @@
 Facter.add("zfs_shares") do
 
-  confine :operatingsystem => 'Solaris'
+  confine :operatingsystemrelease => '5.11' if Facter.value(:osfamily) == 'Solaris'
   setcode do
-    Facter::Core::Execution.exec('zfs get share')
+    shares = `zfs get share`
+    if shares
+      puts shares
+    end
   end
 end
