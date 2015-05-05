@@ -6,7 +6,7 @@ Puppet::Type.newtype(:zfs_share) do
     defaultto :present
   end
 
-  newparam(:zfs_name, :namevar => true) do
+  newparam(:name, :namevar => true) do
     desc "Name of zfs file system"
 
     validate do |value|
@@ -27,6 +27,6 @@ Puppet::Type.newtype(:zfs_share) do
   end
 
   autorequire(:zfs) do
-    self[:zfs_name]
+    self[:name]
   end
 end
