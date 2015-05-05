@@ -26,7 +26,7 @@ Puppet::Type.newtype(:zfs_share) do
     end
   end
 
-  autorequire(:zfs) do
-    self[:name]
-  end
+# autorequire(:zfs) do
+#   self[:name]
+# end
 end
