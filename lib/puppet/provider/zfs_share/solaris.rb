@@ -30,8 +30,8 @@ Puppet::Type.type(:zfs_share).provide(:solaris) do
   end
 
   def exists?
-    if File.file?(share_path)
-      "zfs get share #{title}"
-    end
+    File.file?(share_path)
+    #  "zfs get share #{title}"
+    #end
   end
 end

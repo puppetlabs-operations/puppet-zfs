@@ -1,17 +1,18 @@
 Puppet::Type.newtype(:zfs_share) do
   @doc = "Manage zfs shares"
 
-  ensurable
+  ensurable do
+    defaultvalues
+    defaultto :present
+  end
 
-  newparam(:zfs_name) do
+  newparam(:zfs_name, namevar => true) do
     desc "Name of zfs file system"
-    isnamevar
 
     validate do |value|
       unless value =~ /(?!\/|\d)^\w.*/
         raise ArgumentError , "%s is not a valid zfs path."
       end
-      resource[:provider] = :solaris_zfs_share
     end
   end
 
@@ -24,5 +25,8 @@ Puppet::Type.newtype(:zfs_share) do
       end
     end
   end
-end
 
+  autorequire(:zfs) do
+    self[:zfs_name]
+  end
+end
