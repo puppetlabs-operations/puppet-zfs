@@ -12,16 +12,16 @@ Puppet::Type.type(:zfs_share).provide(:ruby) do
   permission = 'rw'
 
   def exists?
-    File.file?(share_path)
+    File.directory? @share_path
     #  "zfs get share #{title}"
     #end
   end
 
   def create
-    `zfs set share=#{share_title},path=#{share_path},prot=nfs,sec=#{security},#{permission}=#{allow_ips} #{title}`
+    zfscmd "set share=#{share_title},path=#{share_path},prot=nfs,sec=#{security},#{permission}=#{allow_ips} #{title}"
   end
 
   def destroy
-    `zfs set -c share=#{share_title},path=#{share_path}`
+    zfscmd "zfs set -c share=#{share_title},path=#{share_path}"
   end
 end
