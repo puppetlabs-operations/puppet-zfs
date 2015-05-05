@@ -1,3 +1,5 @@
+require 'fileutils'
+
 Puppet::Type.type(:zfs_share).provide(:solaris) do
   desc "ZFS share support for Solaris 11"
 
@@ -28,6 +30,8 @@ Puppet::Type.type(:zfs_share).provide(:solaris) do
   end
 
   def exists?
-    "zfs get share #{title}"
+    if File.file?(share_path)
+      "zfs get share #{title}"
+    end
   end
 end
