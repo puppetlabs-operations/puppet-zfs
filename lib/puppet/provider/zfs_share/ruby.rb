@@ -12,7 +12,7 @@ Puppet::Type.type(:zfs_share).provide(:ruby) do
   permission = 'rw'
 
   def exists?
-    File.directory? @share_path
+    File.directory? @resource[:name].insert(0, "/")
     #  "zfs get share #{title}"
     #end
   end
