@@ -4,7 +4,7 @@ Facter.add("zfs_shares") do
   setcode do
     shares = `zfs get share`
     if shares
-      puts shares
+      shares
     end
   end
 end
