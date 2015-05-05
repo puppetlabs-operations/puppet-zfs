@@ -5,7 +5,7 @@ Puppet::Type.type(:zfs_share).provide(:ruby) do
 
   commands :zfscmd => "zfs"
   share_title = @resource[:name].gsub('/', '_')
-  share_path = @resource[:name].insert 0, "/"
+  share_path = @resource[:name].(insert 0, "/")
   allow_ip = @resource[:allow_ip].insert(0, '@')
   # REPLACE ME
   security = 'none'
@@ -18,10 +18,11 @@ Puppet::Type.type(:zfs_share).provide(:ruby) do
   end
 
   def create
-    zfscmd "set share=#{share_title},path=#{share_path},prot=nfs,sec=#{security},#{permission}=#{allow_ips} #{title}"
+    zfscmd "set", "share=#{share_title},path=#{share_path},prot=nfs,sec=#{security},#{permission}=#{allow_ips}", resource[:name]
+    #zfscmd "set share=#{share_title},path=#{share_path},prot=nfs,sec=#{security},#{permission}=#{allow_ips} #{title}"
   end
 
   def destroy
-    zfscmd "zfs set -c share=#{share_title},path=#{share_path}"
+    zfscmd "set", "-c", "share=#{share_title},path=#{share_path}"
   end
 end
