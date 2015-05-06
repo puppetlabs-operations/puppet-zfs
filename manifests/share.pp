@@ -1,15 +1,17 @@
 # A class for managing ZFS shares
 define zfs::share (
-  $allow_ip,
   $ensure      = present,
-  $zpool       = undef,
-  $full_share  = undef,
-  $share_title = undef,
+  $destructive = false,
   $zvol        = $title,
   $protocol    = 'nfs',
   $permissions = 'rw',
   $security    = [ 'sys', 'default', 'none' ],
   $path        = '/usr/bin:/usr/sbin',
+  $nosub       = 'on',
+  $allow_ip    = undef,
+  $zpool       = undef,
+  $full_share  = undef,
+  $share_title = undef
 ) {
 
   include zfs::vol::get_share
@@ -20,42 +22,31 @@ define zfs::share (
 
   if $zpool {
     $vol_name = "${zpool}/${zvol}"
-  }
-  else {
+  } else {
     $vol_name = $zvol
   }
 
   if $share_title {
     $share_name = $share_title
-  }
-  else {
-    case $zpool {
-      undef: {
-        $share_name = regsubst($vol_name, '/', '_')
-      }
-      /\//: {
-        $zpool_split = inline_template("<%= @zpool.split('/').join('_') %>")
-        $share_name  = $zpool_split
-      }
-      default: {
-        $share_name = "${zpool}_${zvol}"
-      }
-    }
+  } else {
+    $share_name = regsubst($vol_name, '/', '_', 'G')
   }
 
-  if ( is_array($allow_ip) ) {
-    $addresses = inline_template("@<%= allow_ip.join(':@') %>")
-  }
-  else {
+  if $allow_ip {
+    if ( is_array($allow_ip) ) {
+      $addresses = inline_template("@<%= allow_ip.join(':@') %>")
+    }
+    else {
       case $allow_ip {
         /(^\*$)/: {
           $addresses = '*'
         }
         default: {
           $addresses = "@${allow_ip}"
-          }
         }
       }
+    }
+  }
 
   if ( is_array($protocol) ) {
     case $protocol {
@@ -106,21 +97,14 @@ define zfs::share (
     $share_command = "${base_command},${share_sec},${share_perm}${share_prot_smb}"
   }
 
-  if ( $full_share == undef ) {
+  if $full_share {
+    $share = $full_share
+  } else {
     $share = $share_command
   }
-  else {
-    $share = $full_share
-  }
 
-  $unset_zfs_share = "${unset_share}=${share_base} ${vol_name}"
+  $unset_zfs_share = "${unset_share}=name=${share_name} ${vol_name}"
   $set_zfs_share   = "${set_share}=${share} ${vol_name}"
-
-  if ! defined(Zfs[$vol_name]) {
-    zfs { $vol_name:
-      sharenfs => 'on',
-    }
-  }
 
   Exec {
     unless => "zfs_get_share ${vol_name} ${share}",
@@ -133,10 +117,17 @@ define zfs::share (
       exec { $unset_zfs_share: }
     }
     default: {
-      exec {
-        $unset_zfs_share:;
-        $set_zfs_share:
-          require => Exec[$unset_zfs_share]
+      if $destructive {
+        exec {
+          $unset_zfs_share:;
+          $set_zfs_share:
+            require => Exec[$unset_zfs_share]
+        }
+      } else {
+        exec { $set_zfs_share: }
+        if $nosub {
+          exec { "zfs set share.nfs.nosub=on ${vol_name}": }
+        }
       }
     }
   }
