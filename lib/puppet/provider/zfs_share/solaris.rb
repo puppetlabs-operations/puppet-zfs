@@ -3,8 +3,8 @@ Puppet::Type.type(:zfs_share).provide(:solaris) do
 
   commands :zfscmd => "zfs"
   #share_title = @resource[:zfs_name].gsub('/', '_')
-  share_path = @resource[:zfs_name].insert(0, "/")
-  allow_ip = @resource[:allow_ip].insert(0, '@')
+  #share_path = @resource[:zfs_name].insert(0, "/")
+  #allow_ip = @resource[:allow_ip].insert(0, '@')
   # REPLACE ME
   security = 'none'
   permission = 'rw'
@@ -21,7 +21,7 @@ Puppet::Type.type(:zfs_share).provide(:solaris) do
   end
 
   def create
-    zfscmd("set", "share=#{@resource[:zfs_name].gsub('/', '_')},path=#{share_path},prot=nfs,sec=#{security},#{permission}=#{allow_ips}", @resource[:zfs_name])
+    zfscmd("set", "share=#{@resource[:zfs_name].gsub('/', '_')},path=#{@resource[:zfs_name].insert(0,'/')},prot=nfs,sec=#{security},#{permission}=#{@resource[:allow_ip].insert(0, '@')}", @resource[:zfs_name])
     #zfscmd "set share=#{share_title},path=#{share_path},prot=nfs,sec=#{security},#{permission}=#{allow_ips} #{title}"
   end
 
