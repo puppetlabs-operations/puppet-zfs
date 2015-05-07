@@ -6,7 +6,7 @@ Puppet::Type.newtype(:zfs_share) do
     defaultto :present
   end
 
-  newparam(:name) do
+  newparam(:zfs_name, :namevar => true) do
     desc "Name of zfs file system"
     isnamevar
 
@@ -17,6 +17,7 @@ Puppet::Type.newtype(:zfs_share) do
     end
   end
 
+  # should be a property
   newparam(:allow_ip) do
     desc "IP allowed to access share"
 
