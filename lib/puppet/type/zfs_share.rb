@@ -1,12 +1,9 @@
 Puppet::Type.newtype(:zfs_share) do
   @doc = "Manage zfs shares"
 
-  ensurable do
-    defaultvalues
-    defaultto :present
-  end
+  ensurable
 
-  newparam(:zfs_name, :namevar => true) do
+  newparam(:zfs_name) do
     desc "Name of zfs file system"
     isnamevar
 
@@ -18,7 +15,7 @@ Puppet::Type.newtype(:zfs_share) do
   end
 
   # should be a property
-  newparam(:allow_ip) do
+  newproperty(:allow_ip) do
     desc "IP allowed to access share"
 
     validate do |value|
