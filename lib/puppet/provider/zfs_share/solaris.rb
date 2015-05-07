@@ -1,5 +1,3 @@
-require 'fileutils'
-
 Puppet::Type.type(:zfs_share).provide(:solaris) do
   desc "ZFS share support for Solaris 11"
 
@@ -12,7 +10,12 @@ Puppet::Type.type(:zfs_share).provide(:solaris) do
   permission = 'rw'
 
   def exists?
-    File.directory? @resource[:zfs_name].insert(0, "/")
+    begin
+      zfscmd("list", @resource[:zfs_name])
+      true
+    rescue Puppet::ExecutionFailure
+      false
+    end
     #  "zfs get share #{title}"
     #end
   end
