@@ -15,7 +15,7 @@ Puppet::Type.newtype(:zfs_share) do
   end
 
   # should be a property
-  newproperty(:allow_ip) do
+  newparam(:allow_ip) do
     desc "IP allowed to access share"
 
     validate do |value|
