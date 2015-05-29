@@ -1,6 +1,6 @@
 # A class for managing ZFS shares
 define zfs::share (
-  $allow_ip,
+  $allow_ip    = undef,
   $ensure      = present,
   $zpool       = undef,
   $full_share  = undef,
@@ -10,6 +10,7 @@ define zfs::share (
   $permissions = 'rw',
   $security    = [ 'sys', 'default', 'none' ],
   $path        = '/usr/bin:/usr/sbin',
+  $purge       = false
 ) {
 
   include zfs::vol::get_share
@@ -29,16 +30,12 @@ define zfs::share (
     $share_name = $share_title
   }
   else {
-    case $zpool {
-      undef: {
-        $share_name = regsubst($vol_name, '/', '_')
-      }
+    case $vol_name {
       /\//: {
-        $zpool_split = inline_template("<%= @zpool.split('/').join('_') %>")
-        $share_name  = $zpool_split
+        $share_name = regsubst($vol_name, '/', '_', 'G')
       }
       default: {
-        $share_name = "${zpool}_${zvol}"
+        $share_name = $vol_name
       }
     }
   }
@@ -106,38 +103,43 @@ define zfs::share (
     $share_command = "${base_command},${share_sec},${share_perm}${share_prot_smb}"
   }
 
-  if ( $full_share == undef ) {
-    $share = $share_command
+  if $full_share {
+    $share = $full_share
   }
   else {
-    $share = $full_share
+    $share = $share_command
   }
 
   $unset_zfs_share = "${unset_share}=${share_base} ${vol_name}"
   $set_zfs_share   = "${set_share}=${share} ${vol_name}"
 
-  if ! defined(Zfs[$vol_name]) {
-    zfs { $vol_name:
-      sharenfs => 'on',
-    }
-  }
+  if ( $full_share or $allow_ip ) {
 
-  Exec {
-    unless => "zfs_get_share ${vol_name} ${share}",
-    path   => $path,
-    require => [ Zfs[$vol_name], Class[zfs::vol::get_share] ],
-  }
-
-  case $ensure {
-    absent: {
-      exec { $unset_zfs_share: }
+    Exec {
+      unless => "zfs_get_share ${vol_name} ${share}",
+      path   => $path,
+      require => File['/usr/bin/zfs_get_share']# Comes from get_share class
     }
-    default: {
-      exec {
-        $unset_zfs_share:;
-        $set_zfs_share:
-          require => Exec[$unset_zfs_share]
+
+    case $ensure {
+      absent: {
+        exec { $unset_zfs_share: }
+      }
+      default: {
+        if $purge {
+          exec {
+            $unset_zfs_share:;
+            $set_zfs_share:
+              require => Exec[$unset_zfs_share]
+          }
+        }
+        else {
+          exec { $set_zfs_share: }
+        }
       }
     }
+  }
+  else {
+    warn('No ip has been set via allow_ip or full_share, so no share will be set')
   }
 }
