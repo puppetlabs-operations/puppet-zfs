@@ -29,7 +29,14 @@ define zfs::share (
   if $share_title {
     $share_name = $share_title
   } else {
-    $share_name = regsubst($vol_name, '/', '_', 'G')
+    case $vol_name {
+      /\//: {
+        $share_name = regsubst($vol_name, '/', '_', 'G')
+      }
+      default: {
+        $share_name = $vol_name
+      }
+    }
   }
 
   if $allow_ip {
