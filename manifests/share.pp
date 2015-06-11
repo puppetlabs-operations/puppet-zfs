@@ -7,7 +7,6 @@ define zfs::share (
   $security              = [ 'sys', 'default', 'none' ],
   $path                  = '/usr/bin:/usr/sbin',
   $allow_ip_read         = undef,
-  $allow_ip_read_default = undef,
   $allow_ip_write        = undef,
   $zpool                 = undef,
   $full_share            = undef,
@@ -31,44 +30,21 @@ define zfs::share (
   }
 
   if $allow_ip_read {
-    if is_array($allow_ip_read) {
-      $allow_ips_read_j = join($allow_ip_read, ':@')
-      $allow_ips_read   = "@${allow_ips_read_j}"
-    } else {
-      $allow_ips_read = [ "@${allow_ip_read}" ]
-    }
-  } else {
-    $allow_ips_read = []
+    $allow_ips_read_a = any2array($allow_ip_read)
+    $allow_ips_read_j = join($allow_ips_read_a, ':@')
+    $allow_read_cmd = "ro=@${allow_ips_read_j}"
   }
 
-  if $allow_ip_read_default {
-    if is_array($allow_ip_read_default) {
-      $allow_ips_read_default_j = join($allow_ip_read_default, ':@')
-      $allow_ips_read_default   = "@${allow_ips_read_default_j}"
-    } else {
-      $allow_ips_read_default = "@${allow_ip_read_default}"
-    }
-  } else {
-    $allow_ips_read_default = []
+  if $allow_ip_write == '*' {
+    $allow_ips_write = $allow_ip_write
+  }
+  elsif $allow_ip_write {
+    $allow_ips_write_a = any2array($allow_ip_write)
+    $allow_ips_write_j = join($allow_ips_write_a, ':@')
+    $allow_ips_write   = "@${allow_ips_write_j}"
   }
 
-  $allow_read_ips = concat($allow_ips_read, $allow_ips_read_default)
-
-  if ! empty($allow_read_ips) {
-    $allow_read_cmd = "ro=${allow_read_ips}"
-  }
-
-  if $allow_ip_write {
-    if is_array($allow_ip_write) {
-      $allow_ips_write_j = join($allow_ip_write, ':@')
-      $allow_ips_write   = "@${allow_ips_write}"
-    } else {
-      if $allow_ip_write =~ /(^\*$)/ {
-        $allow_ips_write = $allow_ip_write
-      } else {
-        $allow_ips_write = "@${allow_ip_write}"
-      }
-    }
+  if $allow_ips_write {
     $allow_write_cmd = "rw=${allow_ips_write}"
   }
 
