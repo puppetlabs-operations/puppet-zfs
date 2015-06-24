@@ -1,18 +1,20 @@
 # A class for managing ZFS shares
 define zfs::share (
-  $ensure                = present,
-  $destructive           = false,
-  $zvol                  = $title,
-  $protocol              = 'nfs',
-  $security              = [ 'sys', 'default', 'none' ],
-  $path                  = '/usr/bin:/usr/sbin',
-  $allow_ip_read         = undef,
-  $allow_ip_write        = undef,
-  $zpool                 = undef,
-  $full_share            = undef,
-  $share_title           = undef,
-  $anon_user_id          = undef,
-  $nosub                 = undef
+  $ensure         = present,
+  $destructive    = false,
+  $zvol           = $title,
+  $protocol       = 'nfs',
+  $security       = [ 'sys', 'default', 'none' ],
+  $path           = '/usr/bin:/usr/sbin',
+  $allow_ip_read  = undef,
+  $allow_ip_write = undef,
+  $zpool          = undef,
+  $full_share     = undef,
+  $share_title    = undef,
+  $anon_user_id   = undef,
+  $nosub          = undef,
+  $permissions    = undef,
+  $allow_ip       = undef
 ) {
 
   include zfs::vol::get_share
@@ -42,6 +44,9 @@ define zfs::share (
     $allow_ips_write_a = any2array($allow_ip_write)
     $allow_ips_write_j = join($allow_ips_write_a, ':@')
     $allow_ips_write   = "@${allow_ips_write_j}"
+  }
+  elsif $allow_ip {
+    $allow_ips_write   = "@${allow_ip}"
   }
 
   if $allow_ips_write {
