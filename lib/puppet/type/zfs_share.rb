@@ -31,7 +31,7 @@ Puppet::Type.newtype(:zfs_share) do
 
   newproperty(:nfs) do
     desc "Enable or disable nfs"
-    defaultto 'on'
+    defaultto :on
     newvalues(:on, :off)
   end
 
@@ -41,11 +41,6 @@ Puppet::Type.newtype(:zfs_share) do
 
   newproperty(:nosub) do
     desc "Prevents NFSv2 or NFSv3 clients from mounting subdirectories of shared directories."
-    newvalues(:on, :off)
-  end
-
-  newparam(:guestok) do
-    desc "Whether to allow guest access to smb shares"
     newvalues(:on, :off)
   end
 
@@ -190,7 +185,8 @@ Puppet::Type.newtype(:zfs_share) do
   end
 
   newproperty(:share_smb_guestok) do
-    desc "Enables guest access."
+    desc "Whether to allow guest access to smb shares"
+    newvalues(:on, :off)
   end
 
   newproperty(:share_smb_ro) do
@@ -211,7 +207,7 @@ Puppet::Type.newtype(:zfs_share) do
 
   newproperty(:share_auto) do
     desc "Editable property that disables automatic sharing and can only be set on the file system to be shared only."
-    defaultto('on')
+    defaultto :on
     newvalues(:on, :off)
   end
 
