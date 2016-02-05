@@ -4,7 +4,7 @@ Puppet::Type.type(:zfs_share).provide(:solaris, :parent => PuppetX::Puppetlabs::
   desc "ZFS share support for Solaris 11"
 
   confine :operatingsystem => :solaris
-  confine :operatingsystemrelease => 11.2
+  confine :operatingsystemrelease => [ 11.2, 11.3 ]
 
   commands :zfs => 'zfs'
 
