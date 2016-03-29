@@ -2,9 +2,9 @@ class zfs::snapshots {
 
   file { '/usr/local/bin/zfs-snapshot.rb':
     source => 'puppet:///modules/zfs/zfs-snapshot.rb',
-    owner  => root,
+    owner  => 'root',
     group  => 0,
-    mode   => 0750,
+    mode   => '0750',
   }
 
   $env = $operatingsystem ? {
