@@ -7,6 +7,7 @@ import subprocess
 import time
 import argparse
 import os
+import sys
 
 
 def str2bool(v):
@@ -35,6 +36,14 @@ def get_args():
 
     args = parse.parse_args()
     return args
+
+def maintenance_mode():
+    home = os.environ['HOME']
+    file_exists = os.path.isfile('{}/.maintenance_mode'.format(home))
+    if file_exists:
+        return True
+    else:
+        return False
 
 def take_snapshot(volume, title=None):
     """
@@ -74,6 +83,8 @@ def rotate_snapshot(volume, keep):
 
 def main():
     args = get_args()
+    if maintenance_mode():
+        sys.exit(1)
     if args.take_snapshot:
         if take_snapshot(args.volume, args.snapshot_title):
             print 'Created snapshot'
