@@ -8,6 +8,7 @@ import time
 import argparse
 import os
 import sys
+import glob
 
 
 def str2bool(v):
@@ -81,10 +82,23 @@ def rotate_snapshot(volume, keep):
     else:
         return False
 
+def check_sync(volume, tries=4320):
+    attempts = 0
+    while attempts < tries:
+        if len(glob.glob('/{}/*.lock'.format(volume))):
+            attempts = attempts + 1
+            time.sleep(10)
+        else:
+            return False
+    print 'Gave up after {} attempts'.format(attempts)
+    return True
+
 def main():
     args = get_args()
     if maintenance_mode():
         sys.exit(1)
+    if check_sync(args.volume):
+        sys.exit(2)
     if args.take_snapshot:
         if take_snapshot(args.volume, args.snapshot_title):
             print 'Created snapshot'
