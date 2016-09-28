@@ -32,6 +32,7 @@ def get_args():
                        type=str)
     parse.add_argument('-S', '--take_snapshot',
                        help='Enable or disable snapshot creation. Default: True',
+                       action='store',
                        type=bool,
                        default=True)
 
@@ -56,7 +57,7 @@ def take_snapshot(volume, title=None):
         title = time.strftime("%Y-%m-%d-%H-%M", time.localtime())
     snapshot_title = volume + '@' + title
     devnull = open(os.devnull, 'r+b', 0)
-    snapshot = subprocess.call(['zfs', 'snapshot', snapshot_title], stdout=devnull, stderr=devnull)
+    snapshot = subprocess.call(['/usr/sbin/zfs', 'snapshot', snapshot_title], stdout=devnull, stderr=devnull)
     if snapshot == 0:
         return True
     else:
@@ -68,14 +69,14 @@ def rotate_snapshot(volume, keep):
 
     This rotates snapshots above the number in keep. It determines this based on the count provided.
     """
-    output = subprocess.check_output(['zfs', 'list', '-r', '-t', 'snapshot', '-o', 'name', volume])
+    output = subprocess.check_output(['/usr/sbin/zfs', 'list', '-r', '-t', 'snapshot', '-o', 'name', volume])
     if output:
         snapshots = output.strip().split('\n')[1:]
         snapshots.reverse()
         to_remove = snapshots[keep:]
         if len(to_remove):
             for snapshot in to_remove:
-                subprocess.check_output(['zfs', 'destroy', snapshot])
+                subprocess.check_output(['/usr/sbin/zfs', 'destroy', snapshot])
             return 'Destroyed {} snapshots'.format(len(to_remove))
         else:
             return False
@@ -102,7 +103,7 @@ def main():
     if args.take_snapshot:
         if take_snapshot(args.volume, args.snapshot_title):
             print 'Created snapshot'
-    if args.keep:
+    if args.keep >= 0:
         rotate = rotate_snapshot(args.volume, args.keep)
         if rotate:
             print rotate
