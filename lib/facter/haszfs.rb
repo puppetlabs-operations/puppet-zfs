@@ -1,17 +1,13 @@
 Facter.add("haszfs") do
-
-  # By default Solaris doesn't include the filesystem.
-  if Facter.value('operatingsystem') == 'Solaris'
-    mountcmd='mount -v'
-  else
-    mountcmd='mount'
-  end
-
   setcode do
-    if `#{mountcmd}` !~ /zfs/
+    case Facter.value('operatingsystem')
+    when "windows"
       false
+    when "Solaris"
+      # By default Solaris doesn't include the filesystem.
+      `mount -v` =~ /zfs/ ? true : false
     else
-      true
+      `mount` =~ /zfs/ ? true : false
     end
   end
 end
